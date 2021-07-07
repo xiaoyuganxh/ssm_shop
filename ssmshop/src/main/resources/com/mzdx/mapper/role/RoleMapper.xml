@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzdx.mapper.role.RoleMapper">
+    <resultMap id="role" type="Role">
+        <id column="id" property="id"></id>
+        <result property="roleCode" column="roleCode"></result>
+        <result property="roleName" column="roleName"></result>
+        <result property="createdBy" column="createdBy"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <result property="modifyBy" column="modifyBy"></result>
+        <result property="modifyDate" column="modifyDate"></result>
+    </resultMap>
+    <sql id="head">
+        smbms_role.roleCode,smbms_role.roleName,
+        smbms_role.id,smbms_role.createdBy,
+        smbms_role.creationDate,smbms_role.modifyBy,
+        smbms_role.modifyDate
+    </sql>
+    <select id="getRoleList" resultMap="role">
+        SELECT
+        <include refid="head"></include>
+        FROM smbms_role
+    </select>
+</mapper>

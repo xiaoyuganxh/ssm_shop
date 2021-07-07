@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzdx.mapper.bill.BillMapper">
+    <delete id="deleteBillById" parameterType="int">
+        DELETE FROM `smbms_bill` WHERE id=#{delId}
+    </delete>
+    
+    <insert id="add" parameterType="Bill">
+        insert into `smbms_bill`(billCode,productName,productDesc,productUnit,productCount,totalPrice,isPayment,providerId,createdBy,creationDate) values(#{billCode},#{productName},#{productDesc},#{productUnit},#{productCount},#{totalPrice},#{isPayment},#{providerId},#{createdBy},#{creationDate})
+    </insert>
+
+    <!--模糊查询parameterType="Bill"-->
+    <select id="getBillList"  resultType="Bill">
+        select b.*,p.proName as providerName from smbms_bill b, smbms_provider p where b.providerId = p.id
+        <if test="bill.productName!='' and bill.productName!=null">
+            and productName like "%"#{bill.productName}"%"
+        </if>
+        <if test="bill.providerId&gt;0">
+            and providerId = #{bill.providerId}
+        </if>
+        <if test="bill.isPayment&gt;0">
+            and isPayment = #{bill.isPayment}
+        </if>
+        <if test="startday!='' and startday!=null">
+            and b.creationDate &gt; #{startday}'00:00:00'
+        </if>
+        <if test="endday!='' and endday!=null">
+            and b.creationDate &lt; #{endday}'23:59:59'
+        </if>
+            limit #{currentPageNo},#{pageSize}
+    </select>
+
+    <select id="billCount" resultType="int">
+        select count(*) as providerName from smbms_bill b, smbms_provider p where b.providerId = p.id
+        <if test="bill.productName!='' and bill.productName!=null">
+            and productName like "%"#{bill.productName}"%"
+        </if>
+        <if test="bill.providerId&gt;0">
+            and providerId = #{bill.providerId}
+        </if>
+        <if test="bill.isPayment&gt;0">
+            and isPayment = #{bill.isPayment}
+        </if>
+        <if test="startday!='' and startday!=null">
+            and b.creationDate &gt; #{startday}'00:00:00'
+        </if>
+        <if test="endday!='' and endday!=null">
+            and b.creationDate &lt; #{endday}'23:59:59'
+        </if>
+    </select>
+
+    <select id="getBillById" parameterType="int" resultType="Bill">
+        select b.*,p.proName as providerName from smbms_bill b, smbms_provider p where b.providerId = p.id and b.id=#{id}
+    </select>
+
+    <update id="modify" parameterType="Bill">
+        update smbms_bill set productName=#{productName},productDesc=#{productDesc},productUnit=#{productUnit},productCount=#{productCount},totalPrice=#{totalPrice},isPayment=#{isPayment},providerId=#{providerId},modifyBy=#{modifyBy},modifyDate=#{modifyDate} where id = #{id}
+    </update>
+    <!--插入的时候如果时间类型为null，要设置JDBCtype，否则无法识别类型-->
+    <insert id="addBillBatch" >
+        INSERT INTO smbms_bill (billCode,productName,productDesc,productUnit,
+        productCount,totalPrice,isPayment,providerId,createdBy,
+        creationDate,modifyBy,modifyDate) VALUES
+        <foreach collection="list" item="bill" separator="," >
+            (#{bill.billCode},#{bill.productName},#{bill.productDesc},#{bill.productUnit},
+            #{bill.productCount},#{bill.totalPrice},#{bill.isPayment},#{bill.providerId},#{bill.createdBy},
+            #{bill.creationDate,jdbcType=TIMESTAMP},#{bill.modifyBy},#{bill.modifyDate,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+    <select id="getBillByIds" resultType="Bill">
+        select b.*,p.proName as providerName from smbms_bill b, smbms_provider p
+        where b.providerId = p.id AND b.`id` IN
+        <foreach collection="array" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+
+    </select>
+	<select id="getBillCountByProviderId" resultType="int" parameterType="string">
+    SELECT
+	count( * ) AS billCount
+    FROM
+	smbms_bill
+    WHERE
+	providerId = #{string};
+    </select>
+</mapper>

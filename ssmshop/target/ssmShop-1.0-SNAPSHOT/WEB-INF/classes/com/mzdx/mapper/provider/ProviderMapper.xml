@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzdx.mapper.provider.ProviderMapper">
+    <!--<select id="getProviderList" resultType="Provider">
+        select
+        *
+        from
+        smbms_provider
+        <where> 1 = 1
+            <if test = "param1!='' and param1!=null" >
+                and proName like "%" #{param1}"%"
+            </if>
+            <if test = "param2!='' and param2!=null" >
+                and proCode like "%" #{param2}"%"
+            </if>
+        </where>
+    </select>-->
+	<sql id="head">
+        id,proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate,modifyBy,modifyDate
+    </sql>
+    <!--添加数据到回收站-->
+    <insert id="addToRecycle" parameterType="Provider">
+        INSERT INTO recycle_provider (id,proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate)
+        VALUES (#{id},#{proCode},#{proName},#{proDesc},
+        #{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate})
+    </insert>
+    <!--添加-->
+    <insert id="add" parameterType="Provider">
+        INSERT INTO smbms_provider (proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate)
+        VALUES (#{proCode},#{proName},#{proDesc},
+        #{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate})
+    </insert>
+    <!--查询回收站数目-->
+    <select id="getRecycleCount" resultType="int">
+        SELECT
+        count(*)
+        FROM recycle_provider
+        WHERE 1=1
+        <if test="proCode !=null and proCode!=''">
+            AND proCode like "%"#{proCode}"%"
+        </if>
+        <if test="proName !=null and proName!=''">
+            AND proName like "%"#{proName}"%"
+        </if>
+    </select>
+    <!--查询供应商数目-->
+    <select id="getProviderCount" resultType="int">
+        SELECT
+        count(*)
+        FROM smbms_provider
+        WHERE 1=1
+        <if test="proCode !=null and proCode!=''">
+            AND proCode like "%"#{proCode}"%"
+        </if>
+        <if test="proName !=null and proName!=''">
+            AND proName like "%"#{proName}"%"
+        </if>
+    </select>
+    <!--模糊查询-->
+    <select id="getProviderList" resultType="provider">
+        SELECT
+        <include refid="head"/>
+        FROM smbms_provider
+        WHERE 1=1
+        <if test="proCode !=null and proCode!=''">
+            AND proCode like "%"#{proCode}"%"
+        </if>
+        <if test="proName !=null and proName!=''">
+            AND proName like "%"#{proName}"%"
+        </if>
+        <if test="currentPageNo!=-1 and pageSize!=-1">
+            limit #{currentPageNo},#{pageSize}
+        </if>
+
+    </select>
+    <!--删除-->
+    <delete id="deleteProviderById" parameterType="string">
+          DELETE FROM smbms_provider
+          WHERE id=#{string}
+    </delete>
+    <!--根据id查询-->
+    <select id="getProviderById" resultType="provider" parameterType="string">
+        SELECT
+        <include refid="head"></include>
+        FROM smbms_provider
+        WHERE id=#{string}
+    </select>
+    <update id="modify" parameterType="Provider">
+        UPDATE
+        smbms_provider
+        SET
+        proName=#{proName},
+        proDesc=#{proDesc},
+        proContact =#{proContact},
+        proPhone=#{proPhone},
+        proAddress=#{proAddress},
+        proFax=#{proFax},
+        modifyBy=#{modifyBy},
+        modifyDate=#{modifyDate}
+        WHERE id =#{id}
+    </update>
+    <!--查询回收站-->
+    <select id="getRecycleList" resultType="provider">
+        SELECT
+        <include refid="head"/>
+        FROM recycle_provider
+        WHERE 1=1
+        <if test="proCode !=null and proCode!=''">
+            AND proCode like "%"#{proCode}"%"
+        </if>
+        <if test="proName !=null and proName!=''">
+            AND proName like "%"#{proName}"%"
+        </if>
+        limit #{currentPageNo},#{pageSize}
+    </select>
+    <!--删除回收站-->
+    <delete id="deleteRecycleById" parameterType="string">
+        DELETE FROM recycle_provider
+        WHERE id=#{string}
+    </delete>
+    <!--根据Id查询回收站的数据-->
+    <select id="getRecycleById" resultType="provider" parameterType="string">
+        SELECT
+        <include refid="head"></include>
+        FROM recycle_provider
+        WHERE id=#{string}
+    </select>
+</mapper>

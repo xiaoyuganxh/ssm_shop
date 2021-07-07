@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="jquery.Jcrop.min.css">
+<body>
+<form method="post" id="uploadimg" name="uploadimg" action="" enctype="multipart/form-data" target="apply_iframe">
+	<input type="file"  id="fileChange" style="color:#000" name="imageFileGuide"/>
+</form>
+<div class="prew" style="width:300px;height:217px;background:#ccc;position:relative;">
+	<img src="" id="target" width="100%" style="display:none;position:absolute;top:0;left:0;"/>
+	<div id="filterPrew" style="display:none;position:absolute;top:0;left:0;"></div>
+	<img src="" id="filterPrewLoad" style="display:none;" />
+</div>
+<label>X1坐标</label><input type="text" size="4" id="x1" name="x1" />
+<label>Y1坐标</label><input type="text" size="4" id="y1" name="y1" />
+<label>X2坐标</label><input type="text" size="4" id="x2" name="x2" />
+<label>Y2坐标</label><input type="text" size="4" id="y2" name="y2" />
+<label>裁剪的宽</label><input type="text" size="4" id="w" name="w" />
+<label>裁剪的高</label><input type="text" size="4" id="h" name="h" />
+<label>缩放比例</label><input type="text" size="4" id="R" name="R" value="0"/>
+<input href="/modify" type="submit">
+</body>
+</html>
+<script src="jquery.min.js"></script>
+<script src="jquery.Jcrop.min.js"></script>
+<script src="upfile.js"></script>
+<script>
+	 var dom = $('#fileChange')[0];
+     var prev = $('.prevw')[0];
+	 szyFile.init(dom,prev);
+</script>

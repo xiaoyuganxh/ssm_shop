@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzdx.mapper.user.UserMapper">
+    <resultMap id="userMapper" type="com.mzdx.pojo.User">
+        <id property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="userPassword" column="userPassword"/>
+        <result property="gender" column="gender"/>
+        <result property="birthday" column="birthday"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="userRole" column="userRole"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="modifyBy" column="modifyBy"/>
+        <result property="modifyDate" column="modifyDate"/>
+        <result property="age" column="age"/>
+        <result property="userRoleName" column="userRoleName"/>
+        <result property="roleName" column="roleName"></result>
+    </resultMap>
+    <!--登录-->
+    <select id="getLoginUser" resultType="user">
+        select * from smbms_user where userCode=#{userCode} and userPassword=#{userPassword};
+    </select>
+    <!--修改密码-->
+    <update id="updatePwd" parameterType="User">
+        update smbms_user set userPassword= #{userPassword} where id = #{id};
+    </update>
+	 <!--获取所有用户列表-->
+    <!--<select id="findAll" parameterType="string" resultType="User">
+        /*select id,userCode,userName,gender,birthday,phone,address,userRole from smbms_user*/
+       SELECT * FROM smbms_user LIMIT 0,4
+    </select>-->
+    <!--获取Isdelete所有用户列表-->
+    <select id="getIsdelete" parameterType="string" resultType="User">
+        SELECT * FROM smbms_isdelete
+    </select>
+
+    <!--添加用户-->
+    <insert id="add" parameterType="User">
+        insert into smbms_user (userCode,userName,userPassword,userRole,gender,birthday,phone,address,creationDate,createdBy)
+        values(#{userCode},#{userName},#{userPassword},#{userRole},#{gender},#{birthday},#{phone},#{address},#{creationDate},#{createdBy})
+    </insert>
+    <!--修改用户-->
+    <update id="modify" parameterType="User">
+        update smbms_user set userName=#{userName},gender=#{gender},birthday=#{birthday},phone=#{phone},
+        address=#{address},userRole=#{userRole},modifyBy=#{modifyBy},modifyDate=#{modifyDate}
+        <if test="pic!=null and pic!=''">
+         ,pic=#{pic}
+        </if>
+        where id=#{id}
+    </update>
+    <!--根据id删除用户-->
+    <delete id="deleteUserById" parameterType="int">
+        delete from smbms_user where id=#{id}
+    </delete>
+    <delete id="deleteALlways" parameterType="int">
+        delete from smbms_isdelete where id=#{id}
+    </delete>
+
+    <!--根据id查询用户-->
+    <!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路径 -->
+    <select id="getUserById" parameterType="String" resultType="User">
+        select  u.*,r.roleName as userRoleName from smbms_user u,smbms_role r where u.id=#{id} and u.userRole = r.id
+    </select>
+     <!--根据条件查询用户列表-->
+    <select id="getUserList" resultMap="userMapper">
+        select u.*,r.roleName as userRoleName
+        from smbms_user u LEFT JOIN smbms_role r On u.userRole = r.id
+        <where>
+            1=1
+            <if test="queryUserName!=null and queryUserName!=''">
+                and u.userName like "%"#{queryUserName} "%"
+            </if>
+            <if test="queryUserRole!=null and queryUserRole!=''">
+                and u.userCode LIKE "%"#{queryUserRole}"%"
+            </if>
+
+        </where>
+        limit #{currentPageNo},#{pageSize}
+    </select>
+
+    <!--统计用户数量 count-->
+    <select id="getUserCount" resultType="int">
+        select count(1) as count from smbms_user u LEFT JOIN smbms_role r on u.userRole = r.id
+        <where>
+            1=1
+            <if test="queryUserName!=null and queryUserName!=''">
+                and u.userName like "%"#{queryUserName}"%"
+            </if>
+            <if test="queryUserRole!=null and queryUserRole!=''">
+                and u.userCode LIKE "%"#{queryUserRole}"%"
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUserCodeExist" parameterType="string" resultType="user">
+    SELECT *FROM smbms_user where userCode=#{string}
+    </select>
+    <!--获取角色列表-->
+    <select id="getRoleList" resultType="role">
+    select * from smbms_role
+    </select>
+
+    <select id="queryUserList" parameterType="string" resultType="user">
+     SELECT * FROM `smbms_user` WHERE userName LIKE  "%"#{userName}"%"
+    </select>
+
+    <insert id="isdelete" parameterType="User">
+        insert into smbms_isdelete (userCode,userName,userPassword,userRole,gender,birthday,phone,address,creationDate,createdBy)
+        values(#{userCode},#{userName},#{userPassword},#{userRole},#{gender},#{birthday},#{phone},#{address},#{creationDate},#{createdBy})
+    </insert>
+</mapper>

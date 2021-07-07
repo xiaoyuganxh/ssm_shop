@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--开启包扫描-->
+    <context:component-scan base-package="com.mzdx.controller,com.mzdx.service"/>
+    <mvc:annotation-driven></mvc:annotation-driven>
+    <!-- 给css放行 -->
+    <!--<mvc:resources location="/css/,/js/,/calendar/,/images/,/jsp/"
+                   mapping="/css/**,/js/**,/calendar/**,/images/**,/jsp/**"></mvc:resources>-->
+    <!-- 给css放行 -->
+    <mvc:resources location="/css/" mapping="/css/**"></mvc:resources>
+    <mvc:resources location="/js/" mapping="/js/**"></mvc:resources>
+    <mvc:resources location="/calendar/" mapping="/calendar/**"></mvc:resources>
+    <mvc:resources location="/images/" mapping="/images/**"></mvc:resources>
+    <mvc:resources location="/jsp/" mapping="/jsp/**"></mvc:resources>
+    <mvc:resources location="/pic/" mapping="/pic/**"></mvc:resources>
+
+    <!--视图解析器-->
+    <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="page/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>-->
+    <!--spring整合mybaits 开始-->
+    <!--数据源  不再用mybait内置的-->
+    <context:property-placeholder location="classpath:db.properties"/>
+    <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <!--属性赋值-->
+        <property name="driverClassName" value="${db.driverClassName}"/>
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
+    <!--
+    sqlSessionFactory  工厂 生产SqlSession 和数据库交互 这个工厂需要给它配置一个数据源
+    -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--配置数据源-->
+        <property name="dataSource" ref="druidDataSource"/>
+        <!--配置别名包扫描-->
+        <property name="configLocation" value="classpath:mybatis/mybatis.xml"></property>
+        <property name="typeAliasesPackage" value="com.mzdx.pojo"/>
+
+    </bean>
+    <!--配置一个bean  MapperScannerConfigurer  配置mapper接口包扫描
+    MapperScannerConfigurer 类的构建 需要 SqlSessionFactoryBean 但是这里面我们并没有
+    设置对应的属性,而且不建议(过时) 这步操作  spring 在构建MapperScannerConfigurer 的时候
+    自动注入 SqlSessionFactoryBean
+    -->
+    <bean id="mapperScannner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--basePackage 配置mapper扫描的接口包  下面所有接口都会提前帮你生成代理对象
+        放入到Spring容器中
+        -->
+        <property name="basePackage" value="com.mzdx.mapper"/>
+
+    </bean>
+    <!--配置文件上传解析器
+  主要的作用是  把上传的文件的字节流 封装到一个对象中
+  内容:
+  1. 文件名
+  2. 文件的具体的内容
+  bean  必须配置id 而且 id 的名字不能便  常量 multipartResolver
+  -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--上传图片大小限制  字节  5MB-->
+        <property name="maxUploadSize" value="5242880"/>
+        <!--给上传图片的组件 配置一个缓冲区 4KB-->
+        <property name="maxInMemorySize" value="4096"/>
+        <!--图片编码-->
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+    <!--&lt;!&ndash;配置文件解析器,id名不可改，必须用这个&ndash;&gt;
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760"></property>
+    </bean>-->
+    <!-- 配置SpringMVC框架运行所抛出的异常处理 -->
+    <bean id="exceptionResolver"
+          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <!-- 配置捕获什么类型的异常， MaxUploadSizeExceededException， /errorFile 是转跳的URL -->
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">
+                    /getBillList?errorInfo=overMax
+                </prop>
+            </props>
+        </property>
+    </bean>
+
+</beans>
